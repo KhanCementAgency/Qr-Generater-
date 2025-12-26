@@ -3,16 +3,16 @@
 <head>
   <title>QR Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
       margin: 0;
-      padding: 0;
       text-align: center;
     }
 
-    /* HEADER */
+    /* HEADER LOGO */
     .header {
       background: #ffffff;
       padding: 15px;
@@ -28,15 +28,11 @@
     .container {
       background: #ffffff;
       margin: 30px auto;
-      padding: 25px 30px;
+      padding: 25px;
       width: 90%;
       max-width: 500px;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    h3 {
-      margin-bottom: 20px;
     }
 
     input {
@@ -49,24 +45,20 @@
     }
 
     button {
-      padding: 12px 20px;
-      margin: 10px 8px;
+      padding: 12px 22px;
+      margin-top: 15px;
       font-size: 16px;
       cursor: pointer;
       border-radius: 6px;
       border: none;
-      background: #333;
-      color: white;
-    }
-
-    button:hover {
       background: #000;
+      color: #fff;
     }
 
     /* QR AREA */
     #qr-wrapper {
       position: relative;
-      display: inline-block;
+      display: none; /* hidden until QR generate */
       margin-top: 25px;
     }
 
@@ -75,6 +67,7 @@
       height: 220px;
     }
 
+    /* CENTER LOGO (hidden by default) */
     #logo-center {
       position: absolute;
       top: 50%;
@@ -86,6 +79,7 @@
       padding: 6px 10px;
       border-radius: 10px;
       object-fit: contain;
+      display: none; /* VERY IMPORTANT */
     }
   </style>
 </head>
@@ -96,17 +90,14 @@
     <img src="logo.png" alt="Company Logo">
   </div>
 
-  <!-- FORM CARD -->
+  <!-- FORM -->
   <div class="container">
     <h3>Enter Details to Generate QR</h3>
 
     <input type="text" id="name" placeholder="Enter Name">
     <input type="number" id="mobile" placeholder="Enter Mobile Number">
 
-    <div>
-      <button onclick="generateQR()">Generate QR</button>
-      <button onclick="downloadQR()">Save to Gallery</button>
-    </div>
+    <button onclick="generateQR()">Generate QR</button>
 
     <div id="qr-wrapper">
       <div id="qrcode"></div>
@@ -137,44 +128,14 @@
         height: 220,
         correctLevel: QRCode.CorrectLevel.H
       });
-    }
 
-    function downloadQR() {
-      var qrImg = document.querySelector("#qrcode img");
-      if (!qrImg) {
-        alert("Please generate QR first");
-        return;
-      }
-
-      var canvas = document.createElement("canvas");
-      var ctx = canvas.getContext("2d");
-
-      canvas.width = 220;
-      canvas.height = 220;
-
-      var qr = new Image();
-      qr.src = qrImg.src;
-
-      var logo = document.getElementById("logo-center");
-
-      qr.onload = function () {
-        ctx.drawImage(qr, 0, 0, 220, 220);
-
-        var logoWidth = 80;
-        var logoHeight = logo.naturalHeight * (logoWidth / logo.naturalWidth);
-
-        var x = (220 - logoWidth) / 2;
-        var y = (220 - logoHeight) / 2;
-
-        ctx.drawImage(logo, x, y, logoWidth, logoHeight);
-
-        var link = document.createElement("a");
-        link.download = "QR_with_Logo.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      };
+      /* SHOW QR + LOGO ONLY AFTER GENERATION */
+      document.getElementById("qr-wrapper").style.display = "inline-block";
+      document.getElementById("logo-center").style.display = "block";
     }
   </script>
 
 </body>
 </html>
+
+
