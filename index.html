@@ -29,6 +29,702 @@ button{
   grid-template-columns: repeat(auto-fill, minmax(304px, 1fr));
   gap:20px;
   justify-items:center;
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bulk Invitation Generator</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: #eee;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+textarea {
+  width: 95%;
+  max-width: 800px;
+  height: 140px;
+  padding: 10px;
+  font-size: 15px;
+}
+
+button {
+  padding: 9px 14px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.generate-btn {
+  background: #111;
+  color: white;
+}
+
+.copy-btn {
+  background: #111;
+  color: white;
+}
+
+.copy-btn:disabled {
+  background: #198754;
+  color: white;
+}
+
+.edit-btn {
+  background: #1769aa;
+  color: white;
+}
+
+.update-btn {
+  background: #198754;
+  color: white;
+}
+
+.cancel-btn {
+  background: #ddd;
+  color: #111;
+}
+
+#status {
+  margin: 10px;
+  color: #333;
+  font-size: 14px;
+}
+
+#output {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(304px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  align-items: start;
+  margin-top: 20px;
+}
+
+.item {
+  width: 100%;
+  max-width: 340px;
+  min-width: 0;
+}
+
+.card {
+  position: relative;
+  width: 304px;
+  height: 455px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: white;
+}
+
+.template {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.name,
+.mobile,
+.lucky,
+.qr {
+  position: absolute;
+  z-index: 1;
+}
+
+.name {
+  left: 85px;
+  top: 160px;
+  width: 195px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: left;
+  overflow-wrap: anywhere;
+  line-height: 1.15;
+}
+
+.mobile {
+  left: 90px;
+  top: 215px;
+  width: 190px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.lucky {
+  right: 60px;
+  top: 43px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.qr {
+  left: 88px;
+  top: 268px;
+  width: 130px;
+  height: 130px;
+  background: white;
+}
+
+.qr img,
+.qr canvas {
+  display: block;
+  width: 130px !important;
+  height: 130px !important;
+}
+
+.wa-link {
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.wa-link a {
+  color: #075e54;
+}
+
+.edit-panel {
+  display: none;
+  margin: 10px auto;
+  padding: 12px;
+  width: 100%;
+  max-width: 340px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.edit-panel label {
+  display: block;
+  margin-top: 9px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.edit-panel input {
+  width: 100%;
+  padding: 9px;
+  margin-top: 4px;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  font-size: 15px;
+}
+
+.edit-actions {
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Popup */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  padding: 16px;
+  background: rgba(0,0,0,.6);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.open {
+  display: flex;
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: 12px;
+  background: white;
+  text-align: left;
+  box-shadow: 0 8px 30px rgba(0,0,0,.25);
+}
+
+.modal-box h3 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.modal-box label {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.modal-box input {
+  width: 100%;
+  padding: 11px;
+  margin-top: 5px;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.error {
+  color: #b00020;
+  font-size: 13px;
+  min-height: 18px;
+}
+
+@media (max-width: 360px) {
+  body {
+    padding: 6px;
+  }
+
+  #output {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    transform-origin: top center;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+  }
+
+  textarea,
+  .generate-btn,
+  .copy-btn,
+  .edit-btn,
+  .wa-link,
+  #status,
+  .modal,
+  h3,
+  .edit-panel {
+    display: none !important;
+  }
+
+  #output {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .item,
+  .card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<h3>Bulk Invitation Generator</h3>
+
+<p>हर लाइन में पूरा नाम और अंत में मोबाइल नंबर लिखें।</p>
+
+<textarea id="data"
+placeholder="AMAN DEEP JI 9662205610
+ISWAR RAM JI 8696797115"></textarea>
+<br>
+
+<button class="generate-btn" onclick="generate()">
+  Generate All QR
+</button>
+
+<div id="status" aria-live="polite"></div>
+<div id="output"></div>
+
+<!-- Edit Popup -->
+<div class="modal" id="editModal" role="dialog"
+     aria-modal="true" aria-labelledby="editTitle">
+  <div class="modal-box">
+    <h3 id="editTitle">✏️ Edit Invitation</h3>
+
+    <form id="editForm">
+      <label for="editName">Name</label>
+      <input id="editName" required maxlength="150">
+
+      <label for="editMobile">Mobile Number</label>
+      <input id="editMobile" required inputmode="numeric"
+             maxlength="15">
+
+      <label for="editLucky">Lucky Number</label>
+      <input id="editLucky" required type="number" min="1" step="1">
+
+      <div class="error" id="editError" aria-live="polite"></div>
+
+      <div class="modal-actions">
+        <button class="update-btn" type="submit">
+          Update
+        </button>
+        <button class="cancel-btn" type="button"
+                onclick="closeEditor()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+const records = [];
+let editingId = null;
+let nextId = 1;
+
+/* CHANGE YOUR WHATSAPP MESSAGE HERE */
+function makeMessage(record) {
+  return `नमस्ते ${record.name} जी 🙏
+यह आपका QR कोड है।
+कृपया एंट्री के समय यह QR दिखाएँ।
+धन्यवाद।`;
+}
+
+/* Normalize Indian phone number for wa.me */
+function normalizeMobile(value) {
+  let digits = String(value).replace(/\D/g, "");
+
+  if (digits.startsWith("0091")) {
+    digits = digits.slice(4);
+  } else if (digits.startsWith("91") && digits.length === 12) {
+    digits = digits.slice(2);
+  } else if (digits.startsWith("0") && digits.length === 11) {
+    digits = digits.slice(1);
+  }
+
+  return digits;
+}
+
+function validMobile(value) {
+  return /^[6-9]\d{9}$/.test(normalizeMobile(value));
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[ch]);
+}
+
+function whatsappURL(record) {
+  const phone = normalizeMobile(record.mobile);
+  return "https://wa.me/91" + phone +
+    "?text=" + encodeURIComponent(makeMessage(record));
+}
+
+function generate() {
+  const raw = document.getElementById("data").value.trim();
+  const out = document.getElementById("output");
+  const status = document.getElementById("status");
+
+  if (!raw) {
+    status.textContent = "पहले नाम और मोबाइल नंबर की list paste करें।";
+    return;
+  }
+
+  if (typeof QRCode === "undefined") {
+    status.textContent = "QR library load नहीं हुई। Internet connection जाँचें।";
+    return;
+  }
+
+  records.length = 0;
+  nextId = 1;
+  out.replaceChildren();
+
+  const seen = new Set();
+  const lines = raw.split(/\r?\n/);
+  let skipped = 0;
+  let duplicateCount = 0;
+
+  lines.forEach((line, index) => {
+    line = line.trim();
+    if (!line) return;
+
+    const parts = line.split(/\s+/);
+    if (parts.length < 2) {
+      skipped++;
+      return;
+    }
+
+    const mobile = parts.pop();
+    const name = parts.join(" ");
+
+    if (!validMobile(mobile)) {
+      skipped++;
+      return;
+    }
+
+    const normalized = normalizeMobile(mobile);
+
+    if (seen.has(normalized)) {
+      duplicateCount++;
+      skipped++;
+      return;
+    }
+
+    seen.add(normalized);
+
+    const record = {
+      id: nextId++,
+      name,
+      mobile: normalized,
+      lucky: records.length + 1
+    };
+
+    records.push(record);
+    createCard(record);
+  });
+
+  status.textContent =
+    `${records.length} QR बने।` +
+    (duplicateCount ? ` Duplicate mobile skipped: ${duplicateCount}.` : "") +
+    (skipped > duplicateCount ? ` Invalid lines skipped: ${skipped - duplicateCount}.` : "");
+}
+
+function createCard(record) {
+  const out = document.getElementById("output");
+  const item = document.createElement("div");
+  item.className = "item";
+  item.id = "item" + record.id;
+
+  item.innerHTML = `
+    <button class="copy-btn" id="copyBtn${record.id}" type="button">
+      📋 COPY IMAGE
+    </button>
+    <button class="edit-btn" type="button">
+      ✏️ EDIT
+    </button>
+
+    <div class="card" id="card${record.id}">
+      <img src="./template.png" class="template"
+           alt="" crossorigin="anonymous">
+
+      <div class="lucky" data-field="lucky"></div>
+      <div class="name" data-field="name"></div>
+      <div class="mobile" data-field="mobile"></div>
+      <div class="qr" data-field="qr"></div>
+    </div>
+
+    <div class="wa-link">
+      <a data-field="wa" target="_blank" rel="noopener">
+        💬 Chat on WhatsApp
+      </a>
+    </div>
+  `;
+
+  out.appendChild(item);
+
+  item.querySelector(".edit-btn").addEventListener("click", () => {
+    openEditor(record.id);
+  });
+
+  item.querySelector(".copy-btn").addEventListener("click", () => {
+    copyCard(record.id);
+  });
+
+  refreshCard(record);
+}
+
+function refreshCard(record) {
+  const item = document.getElementById("item" + record.id);
+  if (!item) return;
+
+  item.querySelector('[data-field="name"]').textContent = record.name;
+  item.querySelector('[data-field="mobile"]').textContent = record.mobile;
+  item.querySelector('[data-field="lucky"]').textContent = record.lucky;
+
+  const link = item.querySelector('[data-field="wa"]');
+  link.href = whatsappURL(record);
+  link.textContent = "💬 Chat on WhatsApp: +91 " + record.mobile;
+
+  const qrBox = item.querySelector('[data-field="qr"]');
+  qrBox.replaceChildren();
+
+  new QRCode(qrBox, {
+    text: record.name + "\n" + record.mobile + "\nLucky:" + record.lucky,
+    width: 130,
+    height: 130,
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+
+/* EDIT POPUP */
+function openEditor(id) {
+  const record = records.find(r => r.id === id);
+  if (!record) return;
+
+  editingId = id;
+  document.getElementById("editName").value = record.name;
+  document.getElementById("editMobile").value = record.mobile;
+  document.getElementById("editLucky").value = record.lucky;
+  document.getElementById("editError").textContent = "";
+  document.getElementById("editModal").classList.add("open");
+  document.getElementById("editName").focus();
+}
+
+function closeEditor() {
+  document.getElementById("editModal").classList.remove("open");
+  editingId = null;
+}
+
+document.getElementById("editModal").addEventListener("click", event => {
+  if (event.target.id === "editModal") closeEditor();
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeEditor();
+});
+
+document.getElementById("editForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const record = records.find(r => r.id === editingId);
+  if (!record) return;
+
+  const name = document.getElementById("editName").value.trim();
+  const rawMobile = document.getElementById("editMobile").value.trim();
+  const mobile = normalizeMobile(rawMobile);
+  const lucky = Number(document.getElementById("editLucky").value);
+  const error = document.getElementById("editError");
+
+  if (!name) {
+    error.textContent = "Name खाली नहीं हो सकता।";
+    return;
+  }
+
+  if (!validMobile(rawMobile)) {
+    error.textContent = "10 अंकों का सही Indian mobile number डालें।";
+    return;
+  }
+
+  if (!Number.isInteger(lucky) || lucky < 1) {
+    error.textContent = "Lucky Number कम से कम 1 होना चाहिए।";
+    return;
+  }
+
+  const duplicate = records.some(r =>
+    r.id !== record.id && normalizeMobile(r.mobile) === mobile
+  );
+
+  if (duplicate) {
+    error.textContent = "यह mobile number दूसरी entry में पहले से है।";
+    return;
+  }
+
+  record.name = name;
+  record.mobile = mobile;
+  record.lucky = lucky;
+
+  refreshCard(record);
+  closeEditor();
+
+  document.getElementById("status").textContent =
+    `Updated: ${record.name} — Lucky ${record.lucky}`;
+});
+
+/* COPY THE EXACT VISIBLE CARD */
+async function copyCard(id) {
+  const card = document.getElementById("card" + id);
+  const btn = document.getElementById("copyBtn" + id);
+
+  if (!card || typeof html2canvas === "undefined") {
+    document.getElementById("status").textContent =
+      "Image copy library load नहीं हुई। Internet connection जाँचें।";
+    return;
+  }
+
+  if (!navigator.clipboard || !window.ClipboardItem) {
+    document.getElementById("status").textContent =
+      "Image clipboard copy इस browser में supported नहीं है। GitHub Pages को HTTPS पर खोलें।";
+    return;
+  }
+
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Preparing...";
+
+  try {
+    const template = card.querySelector(".template");
+
+    if (!template.complete || template.naturalWidth === 0) {
+      throw new Error("template.png load नहीं हुई।");
+    }
+
+    await document.fonts.ready;
+
+    const qrCanvas = card.querySelector(".qr canvas");
+    const qrImage = card.querySelector(".qr img");
+
+    if (!qrCanvas && !qrImage) {
+      throw new Error("QR अभी तैयार नहीं है।");
+    }
+
+    const canvas = await html2canvas(card, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: "#ffffff",
+      logging: false
+    });
+
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(result => {
+        if (result) resolve(result);
+        else reject(new Error("Image तैयार नहीं हो सकी।"));
+      }, "image/png");
+    });
+
+    await navigator.clipboard.write([
+      new ClipboardItem({ "image/png": blob })
+    ]);
+
+    btn.textContent = "✔ COPIED";
+
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }, 3000);
+
+  } catch (error) {
+    console.error(error);
+    document.getElementById("status").textContent =
+      "Copy नहीं हुई: " + (error.message || "Clipboard permission जाँचें।");
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>
+
 }
 
 /* CARD */
