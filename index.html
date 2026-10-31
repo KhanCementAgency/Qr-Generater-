@@ -522,16 +522,14 @@ function createCard(record) {
       ✏️ EDIT
     </button>
 
-    <div class="card" id="card${record.id}">
-      <img src="./template.png" class="template"
-           alt="" crossorigin="anonymous">
-
-      <div class="lucky" data-field="lucky"></div>
-      <div class="name" data-field="name"></div>
-      <div class="mobile" data-field="mobile"></div>
-      <div class="qr" data-field="qr"></div>
-    </div>
-
+    <div class="card" id="card${i}">
+        <img src="./template.png" class="template" crossorigin="anonymous">
+        <div class="lucky">${lucky}</div>
+        <div class="name">${name}</div>
+        <div class="mobile">${mobile}</div>
+        <div class="qr" id="qr${i}"></div>
+      </div>
+      
     <div class="wa-link">
       <a data-field="wa" target="_blank" rel="noopener">
         💬 Chat on WhatsApp
